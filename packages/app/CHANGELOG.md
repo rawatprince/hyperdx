@@ -1,5 +1,18 @@
 # @hyperdx/app
 
+## 2.33.0
+
+### Patch Changes
+
+- ec161d70: feat: move the dashboard tile fullscreen action to a top-level toolbar icon
+
+  The View fullscreen action now sits directly in the tile toolbar as an icon instead of inside the "More actions" menu, so it is one click instead of two. Narrow tiles that collapse the toolbar keep it in the menu, and the `f` shortcut is unchanged.
+
+- Updated dependencies [017c296e]
+- Updated dependencies [874a5e95]
+- Updated dependencies [0e280949]
+  - @hyperdx/api@2.33.0
+
 ## 2.32.0
 
 ### Minor Changes
