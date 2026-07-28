@@ -6,6 +6,7 @@ import {
 } from '@hyperdx/common-utils/dist/core/metadata';
 import {
   displayTypeSupportsRawSqlAlerts,
+  validateRawSqlChartConfig,
   validateRawSqlForAlert,
 } from '@hyperdx/common-utils/dist/core/utils';
 import { MACRO_SUGGESTIONS } from '@hyperdx/common-utils/dist/macros';
@@ -17,7 +18,16 @@ import {
   isMetricSource,
   isTraceSource,
 } from '@hyperdx/common-utils/dist/types';
-import { Box, Button, Group, Stack, Text, Tooltip } from '@mantine/core';
+import {
+  Alert,
+  Box,
+  Button,
+  Group,
+  List,
+  Stack,
+  Text,
+  Tooltip,
+} from '@mantine/core';
 import { IconBell, IconHelpCircle } from '@tabler/icons-react';
 
 import { ConnectionSelectControlled } from '@/components/ConnectionSelect';
@@ -140,11 +150,26 @@ export default function RawSqlChartEditor({
   const { alertErrorMessage, alertWarningMessage } = useMemo(() => {
     const { errors, warnings } = validateRawSqlForAlert(rawSqlConfig);
     return {
-      alertErrorMessage: errors.length > 0 ? errors.join('. ') : undefined,
-      alertWarningMessage:
-        warnings.length > 0 ? warnings.join('. ') : undefined,
+      alertErrorMessage: errors.length > 0 ? errors.join(' ') : undefined,
+      alertWarningMessage: warnings.length > 0 ? warnings.join(' ') : undefined,
     };
   }, [rawSqlConfig]);
+
+  const { chartErrors, chartWarnings, sqlValidationAlertColor } =
+    useMemo(() => {
+      const { errors, warnings } = validateRawSqlChartConfig(rawSqlConfig, {
+        isDashboardTile: isDashboardForm,
+      });
+
+      const sqlValidationAlertColor =
+        errors.length > 0 ? 'red' : warnings.length > 0 ? 'yellow' : undefined;
+
+      return {
+        chartErrors: errors,
+        chartWarnings: warnings,
+        sqlValidationAlertColor,
+      };
+    }, [rawSqlConfig, isDashboardForm]);
 
   const prevSource = usePrevious(source);
   const prevConnection = usePrevious(connection);
@@ -316,6 +341,18 @@ export default function RawSqlChartEditor({
         />
         <div className={resizeStyles.resizeYHandle} onMouseDown={startResize} />
       </Box>
+      {(chartErrors.length > 0 || chartWarnings.length > 0) && (
+        <Alert color={sqlValidationAlertColor} py="xs">
+          <List size="xs" spacing={2}>
+            {chartErrors.map(message => (
+              <List.Item key={message}>Error: {message}</List.Item>
+            ))}
+            {chartWarnings.map(message => (
+              <List.Item key={message}>Warning: {message}</List.Item>
+            ))}
+          </List>
+        </Alert>
+      )}
       {alert && (
         <TileAlertEditor
           control={control}

@@ -244,6 +244,17 @@ export function hasMacro(sql: string, name: string): boolean {
   return findMacros(sql, name).length > 0;
 }
 
+/**
+ * Which of SOURCE_DEPENDENT_MACROS are actually referenced in the given SQL.
+ * Shared by callers that need to warn/error when those macros are used
+ * without a source to resolve them against.
+ */
+export function getSourceDependentMacrosUsed(
+  sqlTemplate: string,
+): (typeof SOURCE_DEPENDENT_MACROS)[number][] {
+  return SOURCE_DEPENDENT_MACROS.filter(macro => hasMacro(sqlTemplate, macro));
+}
+
 function findMacros(input: string, name: string): MacroMatch[] {
   // eslint-disable-next-line security/detect-non-literal-regexp
   const pattern = new RegExp(`\\$__${name}\\b`, 'g');
